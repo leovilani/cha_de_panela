@@ -5,6 +5,8 @@ import { ItemCard } from "@/components/ItemCard";
 import { PixModal } from "@/components/PixModal";
 import { items } from "@/data/items";
 
+type Category = "all" | "eletrodomesticos" | "roupa_de_cama" | "cozinha";
+
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
@@ -14,11 +16,20 @@ export default function Home() {
   const [selectedItem, setSelectedItem] = useState<(typeof items)[number] | null>(
     null,
   );
+  const [activeCategory, setActiveCategory] = useState<Category>("all");
 
   const baseTxid = useMemo(
     () => process.env.NEXT_PUBLIC_TXID ?? "CHA-CASA-NOVA",
     [],
   );
+
+  const filteredItems =
+    activeCategory === "all"
+      ? items
+      : items.filter((item) => item.category === activeCategory);
+  const availableItems = filteredItems.filter((item) => !item.contributed);
+  const contributedItems = filteredItems.filter((item) => item.contributed);
+  const sortedItems = [...availableItems, ...contributedItems];
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff7ed,_#fdf2f8_45%,_#fff_100%)]">
@@ -36,8 +47,33 @@ export default function Home() {
           </p>
         </header>
 
+        <section className="flex flex-wrap gap-3">
+          {[
+            { id: "all", label: "Tudo" },
+            { id: "eletrodomesticos", label: "Eletrodomesticos" },
+            { id: "roupa_de_cama", label: "Roupa de cama" },
+            { id: "cozinha", label: "Cozinha" },
+          ].map((option) => {
+            const isActive = activeCategory === option.id;
+            return (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => setActiveCategory(option.id as Category)}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  isActive
+                    ? "bg-stone-900 text-white shadow-lg shadow-stone-900/20"
+                    : "border border-stone-200 bg-white text-stone-600 hover:border-stone-300"
+                }`}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </section>
+
         <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((item) => (
+          {sortedItems.map((item) => (
             <ItemCard
               key={item.id}
               item={item}
