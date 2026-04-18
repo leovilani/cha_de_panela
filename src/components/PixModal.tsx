@@ -5,6 +5,7 @@ import { Buffer } from "buffer";
 import { QrCodePix } from "qrcode-pix";
 import { GiftItem } from "@/data/items";
 import { QrCodeView } from "@/components/QrCodeView";
+import { buildPixConfig } from "@/lib/pix";
 
 if (typeof window !== "undefined") {
   window.Buffer = window.Buffer ?? Buffer;
@@ -50,24 +51,29 @@ export function PixModal({ item, onClose, baseTxid }: PixModalProps) {
     item !== null &&
     (item.priceCents !== null || customAmountCents > 0);
 
-  const qrCodePix = useMemo(() => {
-    if (!item || !hasValidAmount) return null;
+  const pixConfig = useMemo(() => {
+    if (!item) return null;
 
-    const key = process.env.NEXT_PUBLIC_PIX_KEY ?? "";
-    const name = process.env.NEXT_PUBLIC_RECEIVER_NAME ?? "";
-    const city = process.env.NEXT_PUBLIC_CITY ?? "";
-    const txid = `${baseTxid}-${item.id}`.slice(0, 25);
+    return buildPixConfig({
+      key: process.env.NEXT_PUBLIC_PIX_KEY ?? "",
+      name: process.env.NEXT_PUBLIC_RECEIVER_NAME ?? "",
+      city: process.env.NEXT_PUBLIC_CITY ?? "",
+      txid: `${baseTxid}-${item.id}`,
+    });
+  }, [baseTxid, item]);
+
+  const qrCodePix = useMemo(() => {
+    if (!item || !hasValidAmount || !pixConfig?.isValid) return null;
 
     return QrCodePix({
       version: "01",
-      key,
-      name,
-      city,
-      transactionId: txid,
-      message: item.title,
+      key: pixConfig.key,
+      name: pixConfig.name,
+      city: pixConfig.city,
+      transactionId: pixConfig.txid,
       value: amountValue ?? undefined,
     });
-  }, [amountValue, baseTxid, hasValidAmount, item]);
+  }, [amountValue, hasValidAmount, item, pixConfig]);
 
   const pixPayload = useMemo(() => qrCodePix?.payload() ?? "", [qrCodePix]);
   const isCopied = copiedPayload === pixPayload && pixPayload !== "";
@@ -136,7 +142,11 @@ export function PixModal({ item, onClose, baseTxid }: PixModalProps) {
               <QrCodeView
                 key={pixPayload || "empty"}
                 generateQrCode={qrCodePix ? () => qrCodePix.base64() : null}
-                emptyLabel="Digite um valor acima de R$ 0,00 para gerar o QR Code."
+                emptyLabel={
+                  hasValidAmount
+                    ? "Confira a chave PIX, nome e cidade nas variáveis públicas."
+                    : "Digite um valor acima de R$ 0,00 para gerar o QR Code."
+                }
               />
             </div>
             <div className="flex flex-col gap-4">
@@ -178,6 +188,12 @@ export function PixModal({ item, onClose, baseTxid }: PixModalProps) {
                   value={pixPayload}
                   className="mt-2 h-24 w-full resize-none rounded-2xl border border-stone-200 bg-stone-50 p-3 text-[11px] text-stone-600 sm:h-28 sm:text-xs"
                 />
+                {!pixConfig?.isValid ? (
+                  <p className="mt-2 text-xs text-rose-500">
+                    Configure `NEXT_PUBLIC_PIX_KEY`, `NEXT_PUBLIC_RECEIVER_NAME`
+                    e `NEXT_PUBLIC_CITY` com valores válidos.
+                  </p>
+                ) : null}
                 <button
                   type="button"
                   onClick={isContributed ? onClose : handleCopy}
