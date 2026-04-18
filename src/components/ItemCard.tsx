@@ -43,3 +43,4 @@ export function ItemCard({ item, onSelect, formattedPrice }: ItemCardProps) {
     </button>
   );
 }
+

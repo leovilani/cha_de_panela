@@ -5,7 +5,13 @@ export type GiftItem = {
   image: string;
   description?: string;
   contributed?: boolean;
-  category: "eletrodomesticos" | "roupa_de_cama" | "outros" | "cozinha";
+  category:
+    | "eletrodomesticos"
+    | "roupa_de_cama"
+    | "cozinha"
+    | "banheiro"
+    | "sala"
+    | "outros";
 };
 
 export const items: GiftItem[] = [
@@ -132,5 +138,55 @@ export const items: GiftItem[] = [
     priceCents: 14990,
     image: "/items/galheteiro.webp",
     category: "cozinha",
+  },
+  {
+    id: "tacas-de-vinho",
+    title: "Taças de Vinho",
+    priceCents: 13990,
+    image: "/items/tacasdevinho.png",
+    category: "cozinha",
+  },
+  {
+    id: "jogo-toalhas-verde-claro",
+    title: "Jogo de Toalhas | Verde Claro",
+    priceCents: 29990,
+    image: "/items/buddemeyerverdeclaro.webp",
+    category: "banheiro",
+  },
+  {
+    id: "jogo-toalhas-rosa",
+    title: "Jogo de Toalhas | Rosa",
+    priceCents: 29991,
+    image: "/items/buddemeyerrosa.webp",
+    category: "banheiro",
+  },
+  {
+    id: "jogo-toalhas-cinza",
+    title: "Jogo de Toalhas | Cinza",
+    priceCents: 29992,
+    image: "/items/buddemeyercinza.webp",
+    category: "banheiro",
+  },
+  {
+    id: "tapete-morango",
+    title: "Tapete de Morango",
+    priceCents: 11900,
+    image: "/items/tapetemorango.webp",
+    category: "banheiro",
+  },
+  {
+    id: "tapete-ondas",
+    title: "Tapete de Ondas",
+    priceCents: 15000,
+    image: "/items/tapetedeondas.webp",
+    category: "banheiro",
+  },
+  {
+    id: "estante",
+    title: "Estante",
+    priceCents: 48190,
+    image: "/items/estante.webp",
+    category: "sala",
   }
 ];
+
